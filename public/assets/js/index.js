@@ -119,39 +119,93 @@ var CargaLista = () => {
 // Función para iniciar la autenticación facial
 // Función para iniciar la autenticación facial
 // Función para iniciar la autenticación facial
+
+
+
+
+
+
+
+
+
+
+
+// async function compararRostros() {
+//   if (!faceapi.nets.tinyFaceDetector.params) {
+//     // Modelos no cargados, espera o maneja el error de alguna manera
+//     return;
+//   }
+  
+//   const primerElemento = lista_imagen[0].IdImagen;
+//   // console.log(primerElemento);
+//   // Convertir las imágenes base64 en tensores
+//   const tensor1 = await faceapi.fetchImage(imagenBase64);
+//   const tensor2 = await faceapi.fetchImage(primerElemento);
+
+//   // Detectar los rostros en ambas imágenes
+//   const detection1 = await faceapi.detectSingleFace(tensor1).withFaceLandmarks().withFaceDescriptor();
+//   const detection2 = await faceapi.detectSingleFace(tensor2).withFaceLandmarks().withFaceDescriptor();
+
+//   if (!detection1 || !detection2) {
+//     return "No se pudieron detectar los rostros en una o ambas imágenes.";
+//   }
+
+//   // Crear faceMatcher con el descriptor del rostro almacenado
+//   const faceMatcher = new faceapi.FaceMatcher([detection1.descriptor]);
+
+//   // Encontrar el mejor match en la nueva imagen
+//   const mejorMatch = faceMatcher.findBestMatch(detection2.descriptor);
+
+//   // Retornar el mensaje indicando si los rostros son iguales o no
+//   console.log(mejorMatch);
+//   if (mejorMatch._label === "unknown") {
+//     console.log("Los rostros son diferentes.")
+//   } else {
+//     console.log("Los rostros son iguales.")
+//   }
+// }
+
+
+
+
 async function compararRostros() {
   if (!faceapi.nets.tinyFaceDetector.params) {
     // Modelos no cargados, espera o maneja el error de alguna manera
     return;
   }
   
-  const primerElemento = lista_imagen.IdImagen.pop();
-  // Convertir las imágenes base64 en tensores
+  // Convertir la imagen base64 en tensor
   const tensor1 = await faceapi.fetchImage(imagenBase64);
-  const tensor2 = await faceapi.fetchImage(primerElemento);
 
-  // Detectar los rostros en ambas imágenes
-  const detection1 = await faceapi.detectSingleFace(tensor1).withFaceLandmarks().withFaceDescriptor();
-  const detection2 = await faceapi.detectSingleFace(tensor2).withFaceLandmarks().withFaceDescriptor();
+  // Iterar sobre cada elemento del array lista_imagen
+  lista_imagen.forEach(async (elemento, indice) => {
+    const tensor2 = await faceapi.fetchImage(elemento.IdImagen);
 
-  if (!detection1 || !detection2) {
-    return "No se pudieron detectar los rostros en una o ambas imágenes.";
-  }
+    // Detectar los rostros en ambas imágenes
+    const detection1 = await faceapi.detectSingleFace(tensor1).withFaceLandmarks().withFaceDescriptor();
+    const detection2 = await faceapi.detectSingleFace(tensor2).withFaceLandmarks().withFaceDescriptor();
 
-  // Crear faceMatcher con el descriptor del rostro almacenado
-  const faceMatcher = new faceapi.FaceMatcher([detection1.descriptor]);
+    if (!detection1 || !detection2) {
+      console.log(`No se pudieron detectar los rostros en la imagen ${indice}.`);
+      return;
+    }
 
-  // Encontrar el mejor match en la nueva imagen
-  const mejorMatch = faceMatcher.findBestMatch(detection2.descriptor);
+    // Crear faceMatcher con el descriptor del rostro almacenado
+    const faceMatcher = new faceapi.FaceMatcher([detection1.descriptor]);
 
-  // Retornar el mensaje indicando si los rostros son iguales o no
-  console.log(mejorMatch);
-  if (mejorMatch._label === "unknown") {
-    console.log("Los rostros son diferentes.")
-  } else {
-    console.log("Los rostros son iguales.")
-  }
+    // Encontrar el mejor match en la nueva imagen
+    const mejorMatch = faceMatcher.findBestMatch(detection2.descriptor);
+
+    // Retornar el mensaje indicando si los rostros son iguales o no
+    console.log(`Comparación del elemento ${indice}:`);
+    if (mejorMatch._label === "unknown") {
+      console.log("Los rostros son diferentes.")
+    } else {
+      console.log("Los rostros son iguales.")
+    }
+  });
 }
+
 
 
 
